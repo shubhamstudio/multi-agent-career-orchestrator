@@ -1,0 +1,16 @@
+# Dependencies and generated output
+**/node_modules/
+**/dist/
+**/uploads/
+
+# Local environment configuration and credentials
+**/.env
+**/.env.*
+!**/.env.example
+**/serviceAccountKey.json
+
+# Logs and local tooling
+*.log
+.vscode/
+.idea/
+.npm-cache/
