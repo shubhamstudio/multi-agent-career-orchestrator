@@ -16,6 +16,7 @@
     "@vercel/blob": "^2.8.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "ioredis": "^6.0.0",
     "mongoose": "^9.8.0",
     "multer": "^2.2.0",
     "nodemon": "^3.1.14",
