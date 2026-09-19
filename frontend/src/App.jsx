@@ -30,9 +30,16 @@ function App() {
   useEffect(()=>{
 
     const getUser = async () => {
-      const data = await getCurrentUser()
-      setUser(data?.user)
-      setLoading(false)
+      try {
+        const data = await getCurrentUser()
+        setUser(data?.user ?? null)
+      } catch (error) {
+        // A temporarily unavailable backend must not leave the public app blank.
+        console.warn("Unable to restore the current session:", error)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
     }
 
     getUser()
@@ -42,8 +49,13 @@ function App() {
   useEffect(()=>{
 
     const getResumeData = async()=>{
-      const result = await getResume()
-      dispatch(setResume(result?.data))
+      try {
+        const result = await getResume()
+        dispatch(setResume(result?.data))
+      } catch (error) {
+        // Resume data is optional before a user signs in.
+        console.warn("Unable to load the current resume:", error)
+      }
     }
 
     getResumeData()

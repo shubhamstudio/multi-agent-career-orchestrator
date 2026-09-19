@@ -2,7 +2,7 @@ import api from "../utils/axios"
 
 export const getCurrentUser = async () => {
     try {
-        const response = await api.get("/api/auth/profile")
+        const response = await api.get("/api/auth/profile", { timeout: 10_000 })
         return response.data
     } catch {
         
