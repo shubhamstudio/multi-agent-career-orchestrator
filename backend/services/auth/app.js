@@ -5,7 +5,9 @@ import cookieParser from "cookie-parser"
 import authRouter from "./routes/auth.route.js"
 import { requireInternalServiceKey } from "../../shared/middleware/internalServiceAuth.js"
 
-if (process.env.DNS_SERVERS) {
+// Local custom DNS can help a developer machine, but Vercel's managed DNS
+// resolver is required for reliable MongoDB SRV lookups in serverless functions.
+if (process.env.DNS_SERVERS && !process.env.VERCEL) {
     dns.setServers(process.env.DNS_SERVERS.split(",").map((server) => server.trim()))
 }
 

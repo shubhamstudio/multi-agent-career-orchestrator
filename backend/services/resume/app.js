@@ -4,7 +4,8 @@ import express from "express"
 import resumeRouter from "./routes/resume.route.js"
 import { requireInternalServiceKey } from "../../shared/middleware/internalServiceAuth.js"
 
-if (process.env.DNS_SERVERS) {
+// Preserve local DNS overrides without replacing Vercel's managed resolver.
+if (process.env.DNS_SERVERS && !process.env.VERCEL) {
     dns.setServers(process.env.DNS_SERVERS.split(",").map((server) => server.trim()))
 }
 
