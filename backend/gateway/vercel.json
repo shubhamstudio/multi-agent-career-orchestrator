@@ -3,7 +3,8 @@
   "framework": null,
   "functions": {
     "api/index.js": {
-      "maxDuration": 300
+      "maxDuration": 300,
+      "includeFiles": "../shared/**"
     }
   },
   "rewrites": [
