@@ -1,6 +1,6 @@
 import crypto from "crypto"
 import { handleUpload } from "@vercel/blob/client"
-import redis from "../../shared/redis/redis.js"
+import redis from "../utils/redis.js"
 
 const UPLOAD_AUTHORIZATION_TTL_SECONDS = 5 * 60
 

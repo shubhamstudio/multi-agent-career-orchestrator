@@ -1,4 +1,4 @@
-import redis from "../../shared/redis/redis.js"
+import redis from "../utils/redis.js"
 
 export const isAuth = async (req, res, next) => {
     try {

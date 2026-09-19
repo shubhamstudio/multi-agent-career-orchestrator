@@ -2,7 +2,7 @@ import razorpay from "../configs/razorpay.js";
 import Billing from "../models/billing.model.js";
 import { getBillingUserModel } from "../models/user.model.js";
 import crypto from "crypto"
-import redis from "../../../shared/redis/redis.js";
+import redis from "../configs/redis.js";
 
 
 

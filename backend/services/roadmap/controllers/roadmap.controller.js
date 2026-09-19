@@ -1,4 +1,4 @@
-import redis from "../../../shared/redis/redis.js";
+import redis from "../configs/redis.js";
 import generateCurriculumForRole from "../agents/curriculum.agent.js";
 import personalizeRoadmap from "../agents/personalization.agent.js";
 import { getCurriculumForRole } from "../data/curricula.js";
