@@ -5,6 +5,9 @@ import { connectDB } from "../configs/db.js"
 const handler = serverless(app)
 
 export default async function authFunction(req, res) {
-    await connectDB()
+    if (!await connectDB()) {
+        return res.status(503).json({ message: "Authentication database is temporarily unavailable" })
+    }
+
     return handler(req, res)
 }

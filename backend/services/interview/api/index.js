@@ -5,6 +5,9 @@ import { connectDB } from "../config/db.js"
 const handler = serverless(app)
 
 export default async function interviewFunction(req, res) {
-    await connectDB()
+    if (!await connectDB()) {
+        return res.status(503).json({ message: "Interview database is temporarily unavailable" })
+    }
+
     return handler(req, res)
 }
