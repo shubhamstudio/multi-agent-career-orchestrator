@@ -7,8 +7,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setResume } from '../redux/resumeSlice'
 import { PolarAngleAxis, RadialBar, RadialBarChart } from "recharts"
 import { spendCoins } from '../apis/user.api'
+import { uploadUserFile } from '../apis/blobUpload.api'
 import ResumeScanVisual from '../components/ResumeScanVisual'
 import Brand from '../components/Brand'
+import { useCreditConfirmation } from '../contexts/CreditConfirmationContext'
 const ScoreRing = ({ score }) => {
     const color = score >= 75 ? "#0f766e" : score >= 50 ? "#d97706" : "#e11d48";
     return (
@@ -89,6 +91,7 @@ function Scorer({ setUser }) {
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch()
     const { resume } = useSelector((state) => state.resume)
+    const { confirmCreditSpend } = useCreditConfirmation()
 
     const selectFile = (selectedFile) => {
         setFileError("")
@@ -111,6 +114,8 @@ function Scorer({ setUser }) {
             alert("Please select a PDF")
             return
         }
+        const approved = await confirmCreditSpend({ coins: 10, action: 'resume-scorer' })
+        if (!approved) return
         try {
             setLoading(true)
 
@@ -125,10 +130,11 @@ function Scorer({ setUser }) {
                 return;
             }
 
-            const formData = new FormData()
-            formData.append("resume", file)
-
-            const response = await api.post("/api/resume/upload", formData)
+            const blob = await uploadUserFile({ kind: "resume", file, filename: file.name })
+            const response = await api.post("/api/resume/process", {
+                blobUrl: blob.url,
+                filename: file.name,
+            }, { timeout: 300000 })
 
             dispatch(setResume(response?.data?.data))
             setLoading(false)
@@ -175,7 +181,7 @@ function Scorer({ setUser }) {
                 </motion.div>
 
                 <div className='resume-review-content'>
-                    <div className='flex items-start justify-between gap-4'><div><p className='text-[10px] font-bold uppercase tracking-[0.16em] text-teal-700'>AI analysis</p><h1 className='mt-1 text-2xl font-bold text-slate-800'>Resume Review</h1></div><button onClick={() => dispatch(setResume(null))} className='rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-slate-300'>Re-upload</button></div>
+                    <div className='flex items-start justify-between gap-4'><div><p className='text-[10px] font-bold uppercase tracking-[0.16em] text-teal-700'>AI analysis</p><h1 className='mt-1 text-2xl font-bold text-slate-800'>Resume Review</h1></div><button onClick={() => dispatch(setResume(null))} className='rounded-lg border border-[#c6ee00] bg-[#d2ff00] px-3 py-2 text-xs font-semibold text-[#273000] transition hover:border-[#a7cc00] hover:bg-[#c6ee00]'>Re-upload</button></div>
 
                     <motion.article initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.1 }} className='resume-score-card'>
                         <ScoreRing score={resume?.score || 0} />

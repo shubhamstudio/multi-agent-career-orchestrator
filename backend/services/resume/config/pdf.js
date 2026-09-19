@@ -1,7 +1,6 @@
-import fs from "fs"
 import {PDFParse} from "pdf-parse"
-const extractText =async (filePath)=>{
-    const buffer = fs.readFileSync(filePath)
+const extractText = async (pdfData) => {
+    const buffer = Buffer.isBuffer(pdfData) ? pdfData : Buffer.from(pdfData)
 
     const pdf = new PDFParse({
         data:buffer

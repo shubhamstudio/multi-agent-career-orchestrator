@@ -19,6 +19,7 @@ import Profile from './pages/Profile'
 import About from './pages/About'
 import Faq from './pages/Faq'
 import Legal from './pages/Legal'
+import { CreditConfirmationProvider } from './contexts/CreditConfirmationContext'
 
 function App() {
   const [user,setUser]= useState(null)
@@ -59,7 +60,7 @@ function App() {
   }
 
   return (
-   <>
+   <CreditConfirmationProvider>
 
    <Routes>
     <Route path='/about' element={<About />}/>
@@ -112,7 +113,7 @@ function App() {
 
 
    </Routes>
-   </>
+   </CreditConfirmationProvider>
   )
 }
 

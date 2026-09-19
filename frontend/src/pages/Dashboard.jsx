@@ -194,7 +194,7 @@ const Dashboard = ({ user, setUser }) => {
             />
 
             <main
-                className={`dashboard-main relative z-10 transition-[margin-left] duration-250 ease-in-out ${sidebarOpen ? "md:ml-[260px]" : "md:ml-[72px]"
+                className={`dashboard-main relative z-10 md:transition-none ${sidebarOpen ? "md:ml-[260px]" : "md:ml-[72px]"
                     }`}
             >
                 {/* Top bar */}
@@ -278,7 +278,7 @@ const Dashboard = ({ user, setUser }) => {
                                 <p className='mt-1 text-xs text-black/45'>Your completed interview scores over time</p>
                             </div>
                             {dashboardMetrics.scoreHistory.length ? (
-                                <ResponsiveContainer width="100%" height={300}>
+                                <ResponsiveContainer width="100%" height={300} debounce={100}>
                                     <LineChart data={dashboardMetrics.scoreHistory} margin={{ top: 12, right: 14, left: -20, bottom: 0 }}>
                                         <CartesianGrid strokeDasharray="3 5" vertical={false} stroke="rgba(29,25,22,0.10)" />
                                         <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: "#77716d", fontSize: 11 }} />
@@ -288,7 +288,7 @@ const Dashboard = ({ user, setUser }) => {
                                             contentStyle={{ borderRadius: 12, border: "1px solid #ebe6e1", background: "rgba(255,255,255,.97)", boxShadow: "0 12px 30px rgba(44,33,27,0.10)" }}
                                             formatter={(value) => [`${value}/100`, "Score"]}
                                         />
-                                        <Line type="linear" dataKey="score" stroke="#9fbe00" strokeWidth={3} dot={{ r: 4, fill: "#fff", stroke: "#9fbe00", strokeWidth: 2 }} activeDot={{ r: 6, fill: "#d2ff00", stroke: "#fff", strokeWidth: 2 }} isAnimationActive />
+                                        <Line type="linear" dataKey="score" stroke="#9fbe00" strokeWidth={3} dot={{ r: 4, fill: "#fff", stroke: "#9fbe00", strokeWidth: 2 }} activeDot={{ r: 6, fill: "#d2ff00", stroke: "#fff", strokeWidth: 2 }} isAnimationActive={false} />
                                     </LineChart>
                                 </ResponsiveContainer>
                             ) : (
@@ -303,12 +303,12 @@ const Dashboard = ({ user, setUser }) => {
                         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .45, delay: .21 }} className='glass-surface overflow-hidden p-4 sm:p-5'>
                             <div className='mb-2 flex items-start justify-between gap-3'><div><p className='text-sm font-semibold'>Overall performance</p><p className='mt-1 text-xs text-black/45'>Your readiness across key career areas</p></div><span className='rounded-lg bg-[#f6ffd9] px-2 py-1 text-xs font-black text-[#708900]'>{dashboardMetrics.readinessScore}%</span></div>
                             {dashboardMetrics.completed.length || dashboardMetrics.resumeLatest !== null || dashboardMetrics.totalTopics ? (
-                                <ResponsiveContainer width="100%" height={270}>
+                                <ResponsiveContainer width="100%" height={270} debounce={100}>
                                     <RadarChart data={dashboardMetrics.performanceRadar} outerRadius="66%" margin={{ top: 10, right: 24, bottom: 4, left: 24 }}>
                                         <PolarGrid stroke="rgba(45,39,35,.14)" />
                                         <PolarAngleAxis dataKey="area" tick={{ fill: "#716a65", fontSize: 9 }} tickLine={false} />
                                         <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #e7e0da", background: "rgba(255,255,255,.98)", fontSize: 11, boxShadow: "0 10px 24px rgba(44,33,27,.10)" }} formatter={(value) => [`${value}%`, "Performance"]} />
-                                        <Radar dataKey="score" stroke="#91ae00" fill="#d2ff00" fillOpacity={.28} strokeWidth={2.5} dot={{ r: 3, fill: "#91ae00" }} />
+                                        <Radar dataKey="score" stroke="#91ae00" fill="#d2ff00" fillOpacity={.28} strokeWidth={2.5} dot={{ r: 3, fill: "#91ae00" }} isAnimationActive={false} />
                                     </RadarChart>
                                 </ResponsiveContainer>
                             ) : <InsightEmpty icon={<FiTrendingUp size={25} />} title="Build your performance profile" text="Complete an agent activity to populate this chart." />}
@@ -317,13 +317,13 @@ const Dashboard = ({ user, setUser }) => {
                         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .45, delay: .27 }} className='glass-surface overflow-hidden p-4 sm:p-5'>
                             <div className='mb-2'><p className='text-sm font-semibold'>Interview performance</p><p className='mt-1 text-xs text-black/45'>Average skill score by interview format</p></div>
                             {dashboardMetrics.completed.length ? (
-                                <ResponsiveContainer width="100%" height={270}>
+                                <ResponsiveContainer width="100%" height={270} debounce={100}>
                                     <BarChart data={dashboardMetrics.typePerformance} margin={{ top: 24, right: 12, left: -18, bottom: 0 }} barSize={54}>
                                         <CartesianGrid strokeDasharray="3 5" vertical={false} stroke="rgba(29,25,22,.10)" />
                                         <XAxis dataKey="type" tickLine={false} axisLine={false} tick={{ fill: "#77716d", fontSize: 11 }} />
                                         <YAxis domain={[0, 100]} tickLine={false} axisLine={false} tick={{ fill: "#77716d", fontSize: 10 }} />
                                         <Tooltip cursor={{ fill: "rgba(210,255,0,.06)" }} contentStyle={{ borderRadius: 12, border: "1px solid #e7e0da", background: "rgba(255,255,255,.98)", fontSize: 11, boxShadow: "0 10px 24px rgba(44,33,27,.10)" }} formatter={(value, name, item) => [`${value}% · ${item.payload.sessions} session${item.payload.sessions === 1 ? "" : "s"}`, "Average"]} />
-                                        <Bar dataKey="score" radius={[12, 12, 4, 4]}>{dashboardMetrics.typePerformance.map((entry) => <Cell key={entry.type} fill={entry.color} />)}</Bar>
+                                        <Bar dataKey="score" radius={[12, 12, 4, 4]} isAnimationActive={false}>{dashboardMetrics.typePerformance.map((entry) => <Cell key={entry.type} fill={entry.color} />)}</Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
                             ) : <InsightEmpty icon={<FiMic size={25} />} title="No interview comparison yet" text="Complete an HR or technical interview to see its score." />}

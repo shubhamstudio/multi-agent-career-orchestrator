@@ -68,12 +68,32 @@ export const curricula = {
       topic("generative-ai", "Generative AI Applications", "Specialization", "Hard", "2 weeks", "Build evaluated applications around foundation models, retrieval, tool use, and safety constraints.", ["deep-learning", "model-serving"], [resource("Hugging Face Documentation", "https://huggingface.co/docs")], "optional"),
     ],
   },
+  "data-analyst": {
+    slug: "data-analyst",
+    title: "Data Analyst Roadmap",
+    version: 1,
+    defaultWeeks: 16,
+    nodes: [
+      topic("analytics-foundations", "Data Analytics Foundations", "Foundations", "Easy", "4 days", "Understand the analytics workflow: defining questions, collecting data, validating evidence, and communicating decisions.", [], [resource("Google Data Analytics Guide", "https://developers.google.com/machine-learning/data-prep")]),
+      topic("spreadsheets", "Spreadsheets for Analysis", "Foundations", "Easy", "1 week", "Use formulas, lookups, pivot tables, charts, filtering, and clean tabular models to investigate business data.", ["analytics-foundations"], [resource("Microsoft Excel Help", "https://support.microsoft.com/excel")]),
+      topic("sql", "SQL for Data Analysis", "Querying", "Medium", "3 weeks", "Query relational data with joins, aggregations, common table expressions, window functions, and reliable filters.", ["analytics-foundations"], [resource("PostgreSQL Documentation", "https://www.postgresql.org/docs/current/")]),
+      topic("statistics", "Practical Statistics", "Foundations", "Medium", "2 weeks", "Apply descriptive statistics, distributions, sampling, confidence intervals, hypothesis tests, and experiment basics.", ["analytics-foundations"], [resource("OpenIntro Statistics", "https://www.openintro.org/book/os/")]),
+      topic("python", "Python for Analysis", "Programming", "Medium", "3 weeks", "Use Python, pandas, NumPy, notebooks, and reproducible scripts to inspect and transform tabular data.", ["analytics-foundations"], [resource("pandas Documentation", "https://pandas.pydata.org/docs/")]),
+      topic("data-cleaning", "Data Cleaning and Quality", "Data", "Medium", "2 weeks", "Profile data, handle missing values, standardize fields, detect anomalies, and document assumptions before analysis.", ["sql", "python"], [resource("pandas User Guide", "https://pandas.pydata.org/docs/user_guide/index.html")]),
+      topic("visualization", "Data Visualization", "Communication", "Medium", "2 weeks", "Choose accurate charts, design clear visual encodings, and explain findings for technical and non-technical audiences.", ["statistics", "data-cleaning"], [resource("Data Visualization Catalogue", "https://datavizcatalogue.com/")]),
+      topic("bi-tools", "Business Intelligence Dashboards", "Communication", "Medium", "2 weeks", "Build maintainable dashboards with filters, calculated metrics, drill-downs, and documented refresh logic.", ["sql", "visualization"], [resource("Microsoft Power BI Documentation", "https://learn.microsoft.com/power-bi/")]),
+      topic("business-metrics", "Business Metrics and Storytelling", "Product", "Hard", "2 weeks", "Define trustworthy KPIs, interpret trends in context, communicate trade-offs, and turn analysis into decisions.", ["statistics", "bi-tools"], [resource("Google Analytics Documentation", "https://developers.google.com/analytics")]),
+      topic("analyst-portfolio", "End-to-End Analytics Portfolio Project", "Portfolio", "Hard", "3 weeks", "Deliver a complete analysis from a raw dataset through cleaning, SQL, a dashboard, written recommendations, and reproducible documentation.", ["data-cleaning", "bi-tools", "business-metrics"]),
+      topic("data-modeling", "Analytics Data Modeling", "Specialization", "Hard", "2 weeks", "Learn dimensional modeling, metric definitions, and warehouse-friendly tables for reliable self-service analytics.", ["sql", "business-metrics"], [resource("dbt Documentation", "https://docs.getdbt.com/")], "optional"),
+    ],
+  },
 };
 
 const roleMatchers = [
   { slug: "frontend-developer", pattern: /front\s*-?end|frontend|react|web\s*(developer|engineer)|ui\s*(developer|engineer)/i },
+  { slug: "data-analyst", pattern: /data\s*analyst|business\s*analyst|business\s*intelligence|\bbi\s*analyst|analytics\s*engineer|product\s*analyst/i },
   { slug: "machine-learning-engineer", pattern: /machine\s*learning|\bml\b|ai\s*(engineer|developer)|data\s*scientist/i },
-  { slug: "backend-developer", pattern: /back\s*-?end|backend|node|api\s*(developer|engineer)|server|full\s*stack/i },
+  { slug: "backend-developer", pattern: /back\s*-?end|backend|node|api\s*(developer|engineer)|server|full\s*stack|software\s*(developer|engineer)|platform\s*engineer/i },
 ];
 
 export const supportedRoles = Object.values(curricula).map(({ slug, title }) => ({ slug, title }));

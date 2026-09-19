@@ -1,6 +1,7 @@
 import redis from "../../../shared/redis/redis.js";
+import generateCurriculumForRole from "../agents/curriculum.agent.js";
 import personalizeRoadmap from "../agents/personalization.agent.js";
-import { getCurriculumForRole, supportedRoles } from "../data/curricula.js";
+import { getCurriculumForRole } from "../data/curricula.js";
 import Roadmap from "../models/roadmap.model.js";
 import { buildRoadmap, updateTopicStatus } from "../services/roadmap-builder.service.js";
 
@@ -55,13 +56,10 @@ export const generateRoadmap = async (req, res) => {
       return res.status(400).json({ success: false, message: "Resume data is required." });
     }
 
-    const curriculum = getCurriculumForRole(role);
-    if (!curriculum) {
-      return res.status(400).json({
-        success: false,
-        message: `Choose a supported role: ${supportedRoles.map(({ title }) => title.replace(" Roadmap", "")).join(", ")}.`,
-      });
-    }
+    // Curated roadmaps remain deterministic. Other technical role titles receive a
+    // separately generated curriculum, then use the same personalization and builder.
+    const curriculum = getCurriculumForRole(role)
+      || await generateCurriculumForRole({ role: role.trim(), targetPackage });
 
     const decisions = await personalizeRoadmap({ curriculum, role, targetPackage, useResume, resume });
     const generatedRoadmap = buildRoadmap({ curriculum, decisions, targetPackage, useResume, resume });

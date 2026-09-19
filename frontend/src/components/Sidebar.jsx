@@ -54,16 +54,12 @@ function Sidebar({
             <div className={`px-3 h-[52px] border-b border-black/[0.05] shrink-0 flex items-center ${sidebarOpen ? "justify-between" : "justify-center"
                 }`}>
                 {sidebarOpen && (
-                    <motion.div
-                            initial={{ opacity: 0, x: -6 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.15 }}
-                    >
+                    <div>
                         <Brand
                             className='font-extrabold text-sm tracking-tight text-[#0A0A0A] whitespace-nowrap'
                             markClassName='h-5 w-5'
                         />
-                    </motion.div>
+                    </div>
                 )}
                 <div className='flex items-center '>
                     <motion.button
@@ -96,31 +92,10 @@ function Sidebar({
                     className={`w-full flex items-center gap-2 primary-gradient text-white font-semibold rounded-lg py-2 transition-all shadow-[0_4px_14px_rgba(210,255,0,0.25)] cursor-pointer hover:brightness-105 ${sidebarOpen ? "px-2.5 " : "justify-center px-0"
                         }`}>
                     <FiPlus size={14} className='shrink-0' />
-                    <AnimatePresence>
-                        {sidebarOpen &&
-                            <motion.span
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.13 }}
-                                className='text-xs whitespace-nowrap'>
-                                Create Interview
-                            </motion.span>}
-                    </AnimatePresence>
+                    {sidebarOpen && <span className='text-xs whitespace-nowrap'>Create Interview</span>}
                 </motion.button>
             </div>
-            <AnimatePresence>
-                {sidebarOpen &&
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.13 }}
-                        className='px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-widest text-dark-200/70'>
-                        Agents
-
-                    </motion.p>}
-            </AnimatePresence>
+            {sidebarOpen && <p className='px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-widest text-dark-200/70'>Agents</p>}
 
             <nav className='flex flex-col gap-0.5 px-2.5 flex-1'>
                 {NAV_ITEMS.map((nav, i) => (
@@ -157,20 +132,15 @@ function Sidebar({
                     <FiUser size={15} />
                     {sidebarOpen && <span>My Profile</span>}
                 </motion.button>
-                <AnimatePresence>
-                    {sidebarOpen &&
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.13 }}
-                            onClick={() => navigate("/billing")}
-                            className='group flex cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-[#e5ff86] bg-[#f6ffd9] px-2.5 py-2 mb-2.5 transition-all hover:bg-[#f6ffd9] shadow-[0_6px_18px_rgba(210,255,0,0.08)]'>
+                {sidebarOpen &&
+                    <div
+                        onClick={() => { navigate("/billing"); setMobileOpen(false) }}
+                        className='group flex cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-[#e5ff86] bg-[#f6ffd9] px-2.5 py-2 mb-2.5 transition-all hover:bg-[#f6ffd9] shadow-[0_6px_18px_rgba(210,255,0,0.08)]'>
                             <div className='flex items-center gap-1.5'>
                                 <GiTwoCoins size={15} className='text-[#819e00] shrink-0' />
 
                                 <div className='flex flex-col'>
-                                    <span className='text-[9px] uppercase tracking-wider text-[#8c5b48] font-medium'>Interview Coins</span>
+                                    <span className='text-[9px] uppercase tracking-wider text-[#8c5b48] font-medium'>GLAN Credits</span>
                                     <span className='text-xs font-bold text-[#3a2a24]'>{user?.interviewCoin}</span>
                                 </div>
                             </div>
@@ -180,8 +150,7 @@ function Sidebar({
                             </div>
 
 
-                        </motion.div>}
-                </AnimatePresence>
+                    </div>}
 
                 <div className={`flex items-center gap-2 ${sidebarOpen ? "" : "justify-center"}`}>
                     <div className='w-7 h-7 rounded-full primary-gradient flex items-center justify-center shrink-0'>
@@ -191,38 +160,24 @@ function Sidebar({
                         </span>
                     </div>
 
-                    <AnimatePresence>
-                        {sidebarOpen && (
-
-                            <motion.div initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="flex-1 min-w-0">
+                    {sidebarOpen && (
+                            <div className="flex-1 min-w-0">
                                 <p className="text-[#0A0A0A] text-[11px] font-semibold truncate">
                                     {user?.name ?? "User"}
                                 </p>
                                 <p className="text-dark-200/70 text-[9px] truncate">
                                     {user?.email ?? "user@email.com"}
                                 </p>
-                            </motion.div>
+                            </div>
+                    )}
 
-                        )}
-                    </AnimatePresence>
-
-                    <AnimatePresence>
-                        {sidebarOpen && (
-
-                            <motion.button
+                    {sidebarOpen && (
+                            <button
                                 onClick={onLogout}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                whileHover={{ scale: 1.15 }}
                                 className='text-dark-200 hover:text-red-500 transition-colors ml-auto'>
                                 <FiLogOut size={13} />
-                            </motion.button>
-                        )}
-                    </AnimatePresence>
+                            </button>
+                    )}
                 </div>
             </div>
 
@@ -245,7 +200,7 @@ function Sidebar({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setMobileOpen(false)}
-                        className='fixed inset-0 bg-black/30 z-40 md:hidden backdrop-blur-sm' />
+                        className='fixed inset-0 bg-black/30 z-40 md:hidden' />
                 )}
             </AnimatePresence>
 
@@ -256,8 +211,8 @@ function Sidebar({
                         initial={{ x: -280 }}
                         animate={{ x: 0 }}
                         exit={{ x: -280 }}
-                        transition={{ duration: 0.25, ease: "easeInOut" }}
-                        className='fixed top-0 left-0 h-screen w-[280px] max-w-[85vw] bg-white/95 backdrop-blur-xl border-r border-[#ebe6e1] flex flex-col z-50 md:hidden overflow-hidden'>
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className='fixed top-0 left-0 h-[100dvh] w-[280px] max-w-[85vw] bg-white border-r border-[#ebe6e1] flex flex-col z-50 md:hidden overflow-hidden [will-change:transform]'>
                         {inner}
                     </motion.aside>
                 )}

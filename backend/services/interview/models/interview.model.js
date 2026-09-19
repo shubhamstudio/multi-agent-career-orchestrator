@@ -61,6 +61,18 @@ const feedbackSchema = new mongoose.Schema(
     { _id: false }
 );
 
+const audioRecordSchema = new mongoose.Schema(
+    {
+        url: { type: String, required: true },
+        pathname: { type: String, required: true },
+        filename: { type: String, default: "" },
+        contentType: { type: String, default: "" },
+        transcript: { type: String, default: "" },
+        recordedAt: { type: Date, default: Date.now },
+    },
+    { _id: false }
+);
+
 const questionSchema = new mongoose.Schema(
     {
         question: {
@@ -86,6 +98,10 @@ const questionSchema = new mongoose.Schema(
         feedback: {
             type: feedbackSchema,
             default: () => ({}),
+        },
+        audioRecords: {
+            type: [audioRecordSchema],
+            default: [],
         },
     },
     { _id: false }

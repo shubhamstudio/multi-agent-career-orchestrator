@@ -45,7 +45,7 @@ function PricingCard({
             <div className='relative mt-3.5 flex items-center gap-1.5 rounded-lg bg-[#f4f7fd] border border-[#dce7f8] p-2.5'>
             <GiTwoCoins className="text-yellow-400" size={14}/>
             <span className='text-sm font-semibold text-[#344054]'>
-                {coins} Interview Coins
+                {coins} GLAN Credits
 
             </span>
             </div>

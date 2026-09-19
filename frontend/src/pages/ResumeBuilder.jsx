@@ -6,6 +6,9 @@ import { FiArrowLeft, FiArrowRight, FiEye } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import PreviewResume from '../components/resume/PreviewResume';
 import Brand from '../components/Brand';
+import TemplateSelection from '../components/resume/TemplateSelection';
+import AiResumeDetailsForm from '../components/resume/AiResumeDetailsForm';
+import api from '../utils/axios';
 const STEPS = [
   { step: 1, title: "Personal Information", subtitle: "Your basic contact details" },
   { step: 2, title: "Professional Summary", subtitle: "A quick intro about yourself" },
@@ -21,6 +24,7 @@ function ResumeBuilder({user , setUser}) {
     const [currentStep,setCurrentStep] = useState(1)
     const [data,setData]= useState(initialData)
     const [showPreview,setShowPreview] = useState(false)
+    const [templateId, setTemplateId] = useState(null)
     const navigate = useNavigate()
     const progressPct = ((currentStep)/(TOTAL_STEPS))* 100
     const activeStep = STEPS.find((s)=>s.step === currentStep);
@@ -39,8 +43,22 @@ function ResumeBuilder({user , setUser}) {
 
     const isLastStep = currentStep === STEPS.length
 
+    if (!templateId) {
+      return <TemplateSelection onSelect={setTemplateId} onBack={() => navigate('/dashboard')} />
+    }
+
+    const generateAiResume = async (brief) => {
+      const response = await api.post('/api/resume/generate', brief)
+      setData((current) => ({ ...current, ...response.data.data }))
+      setShowPreview(true)
+    }
+
+    if (templateId === 'ai-generated' && !showPreview) {
+      return <AiResumeDetailsForm onBack={() => setTemplateId(null)} onGenerated={generateAiResume} />
+    }
+
     if(showPreview){
-      return <PreviewResume data={data} user={user} setUser={setUser} onBack={()=>setShowPreview(false)}/>
+      return <PreviewResume data={data} setData={setData} templateId={templateId} user={user} setUser={setUser} onBack={()=>setShowPreview(false)} onChangeTemplate={() => { setShowPreview(false); setTemplateId(null) }} />
     }
   return (
     <div className='theme-page flex flex-col'>
@@ -63,8 +81,12 @@ function ResumeBuilder({user , setUser}) {
                   </div>
                 </div>
 
-                <button onClick={()=>setShowPreview(true)} className='flex h-8 items-center justify-center  rounded-lg border border-black/15 text-black/60 transition px-2 hover:border-[#0A0A0A] hover:text-[#0A0A0A]'>
-                <FiEye size={13}/></button>
+                <div className='flex items-center gap-2'>
+                  <button onClick={() => setTemplateId(null)} className='hidden rounded-lg border border-black/15 px-2.5 py-1.5 text-[10px] text-black/60 transition hover:border-black/35 hover:text-[#0A0A0A] sm:block'>Change template</button>
+                  <button onClick={()=>setShowPreview(true)} aria-label='Preview resume' className='flex h-8 items-center justify-center rounded-lg border border-black/15 px-2 text-black/60 transition hover:border-[#0A0A0A] hover:text-[#0A0A0A]'>
+                    <FiEye size={13}/>
+                  </button>
+                </div>
 
             </div>
 

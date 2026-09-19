@@ -7,8 +7,10 @@ import { spendCoins } from '../../apis/user.api'
 import api from '../../utils/axios'
 import { setResume } from '../../redux/resumeSlice'
 import { startInterview } from '../../apis/interview.api'
+import { uploadUserFile } from '../../apis/blobUpload.api'
 import ResumeScanVisual from '../ResumeScanVisual'
 import { primeDeepgramAudio } from '../../utils/deepgramFluxTts'
+import { useCreditConfirmation } from '../../contexts/CreditConfirmationContext'
 function Step1setup({ user, setUser }) {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -19,12 +21,15 @@ function Step1setup({ user, setUser }) {
     const [file, setFile] = useState(null)
     const [uploading, setUploading] = useState(false)
     const [starting, setStarting] = useState(false)
+    const { confirmCreditSpend } = useCreditConfirmation()
 
     const uploadResume = async () => {
         if (!file) {
             alert("Please select a PDF")
             return
         }
+        const approved = await confirmCreditSpend({ coins: 10, action: 'resume-scorer' })
+        if (!approved) return
         try {
             setUploading(true)
             try {
@@ -41,10 +46,11 @@ function Step1setup({ user, setUser }) {
             }
 
 
-            const formData = new FormData()
-            formData.append("resume", file)
-
-            const response = await api.post("/api/resume/upload", formData)
+            const blob = await uploadUserFile({ kind: "resume", file, filename: file.name })
+            const response = await api.post("/api/resume/process", {
+                blobUrl: blob.url,
+                filename: file.name,
+            }, { timeout: 300000 })
 
             dispatch(setResume(response?.data?.data))
             setUploading(false)
@@ -58,31 +64,33 @@ function Step1setup({ user, setUser }) {
 
     const start = async () => {
         primeDeepgramAudio().catch(() => {})
+        const approved = await confirmCreditSpend({ coins: 50, action: 'start-interview' })
+        if (!approved) return
         setStarting(true)
-        const response = await startInterview({ role, type, useResume, resume })
-
-        if (!response?.success) {
-            setStarting(false)
-            alert("Unable to start the interview. Please try again.")
-            return
-        }
-
         try {
-                
-            const coinResponse = await spendCoins({ coins: 50, action: "start-interview" })
+            const response = await startInterview({ role: role.trim(), type, useResume, resume })
+            if (!response?.success) {
+                throw new Error(response?.message || "Interview setup failed.")
+            }
 
-            setUser((prev) => ({
-                ...prev, interviewCoin: coinResponse?.interviewCoin,
-            }))
-        } catch {
+            try {
+                const coinResponse = await spendCoins({ coins: 50, action: "start-interview" })
+
+                setUser((prev) => ({
+                    ...prev, interviewCoin: coinResponse?.interviewCoin,
+                }))
+            } catch {
+                alert("Failed to use coins.")
+                return
+            }
+
+            navigate(`/interview/${response.interviewId}`)
+        } catch (error) {
+            console.error("Interview start failed:", error.response?.data || error)
+            alert(error.response?.data?.message || error.message || "Unable to start the interview. Please try again.")
+        } finally {
             setStarting(false)
-            alert("Failed to use coins.")
-            return;
         }
-
-        setStarting(false)
-        navigate(`/interview/${response.interviewId}`)
-
     }
 
     return (

@@ -16,7 +16,7 @@ const plan = [
         popular: false,
         disabled: true,
         features: [
-            "150 Interview Coins",
+            "150 GLAN Credits",
             "Resume Builder",
             "Resume Scorer",
             "Roadmap Generator",
@@ -30,7 +30,7 @@ const plan = [
         popular: true,
         disabled: false,
         features: [
-            "300 Interview Coins",
+            "300 GLAN Credits",
             "Unlimited Resume Score",
             "Unlimited Roadmaps",
             "Priority AI Response",
@@ -79,7 +79,7 @@ function Billing({ user, setUser }) {
                 amount: result.data.order.amount,
                 currency: result.data.order.currency,
                 name: "GLANGEN",
-                description: `${plan.title} - ${plan.coins} Interview Coins`,
+                description: `${plan.title} - ${plan.coins} GLAN Credits`,
                 order_id: result.data.order.id,
 
                 handler: async function (response) {
@@ -139,7 +139,7 @@ function Billing({ user, setUser }) {
                         </button>
                         <div className='flex items-center gap-1.5'>
                             <Brand className='text-sm font-extrabold sm:text-base text-[#0A0A0A]' markClassName='h-5 w-5' />
-                            <span className='hidden rounded bg-[#f6ffd9] px-1.5 py-0.5 text-[10px] text-[#667b00] sm:block'>Interview Coins</span>
+                            <span className='hidden rounded bg-[#f6ffd9] px-1.5 py-0.5 text-[10px] text-[#667b00] sm:block'>GLAN Credits</span>
                         </div>
                     </div>
 
@@ -153,20 +153,20 @@ function Billing({ user, setUser }) {
                         <>
                             <div onClick={() => setShowMenu(false)} className='fixed inset-0 z-30 bg-black/20 lg:hidden' />
 
-                            <div className='absolute right-1 top-11 z-40 w-[240px] max-w-[calc(100vw-24px)] rounded-xl overflow-hidden bg-[#000000]/90 backdrop-blur-2xl border border-white/10 p-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)]'>
-                                <div className='absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none' />
+                            <div className='absolute right-1 top-11 z-40 w-[240px] max-w-[calc(100vw-24px)] overflow-hidden rounded-2xl border border-[#ebe6e1] bg-white/95 p-3.5 shadow-[0_18px_45px_rgba(44,33,27,.16)] backdrop-blur-xl'>
+                                <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_92%_5%,rgba(210,255,0,.35),transparent_34%),linear-gradient(135deg,rgba(246,255,217,.65),transparent_52%)]' />
 
-                                <div className='relative flex items-center gap-2 border-b border-white/10 pb-3'>
+                                <div className='relative flex items-center gap-2 border-b border-[#ebe6e1] pb-3'>
 
-                                    <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-500/15 border border-yellow-400/20'>
-                                        <GiTwoCoins className='text-yellow-400 text-sm' />
+                                    <div className='flex h-10 w-10 items-center justify-center rounded-xl border border-[#c6ee00] bg-[#d2ff00]'>
+                                        <GiTwoCoins className='text-[#536800] text-sm' />
                                     </div>
 
                                     <div>
-                                        <p className="text-[10px] text-white/40">
-                                            Available Coins
+                                        <p className="text-[10px] font-medium text-[#7d7772]">
+                                            Available GLAN Credits
                                         </p>
-                                        <h3 className='text-lg font-bold text-white'>{user?.interviewCoin}</h3>
+                                        <h3 className='text-xl font-extrabold text-[#171514]'>{user?.interviewCoin}</h3>
                                     </div>
 
                                 </div>
@@ -178,11 +178,11 @@ function Billing({ user, setUser }) {
                                         { title: "Roadmap Generator", coin: "-20" },
                                         { title: "AI Interview", coin: "-50" },
                                     ].map((item) => (
-                                        <div key={item.title} className='flex items-center justify-between rounded-lg bg-white/5 border border-white/8 px-2.5 py-1.5'>
-                                            <span className="text-xs text-white/70">
+                                        <div key={item.title} className='flex items-center justify-between rounded-xl border border-[#eee7e1] bg-[#fbffed] px-2.5 py-2'>
+                                            <span className="text-xs font-medium text-[#625f5c]">
                                                 {item.title}
                                             </span>
-                                            <span className="text-xs font-bold text-red-400">
+                                            <span className="text-xs font-bold text-[#c34b4b]">
                                                 {item.coin}
                                             </span>
 
@@ -191,9 +191,9 @@ function Billing({ user, setUser }) {
 
                                 </div>
 
-                                <div className='relative mt-3.5 rounded-lg border border-violet-400/20 bg-violet-500/10 p-2.5'>
-                                    <p className="text-[10px] leading-4 text-violet-300">
-                                        Every AI feature uses Interview Coins.
+                                <div className='relative mt-3.5 rounded-xl border border-[#e2ff70] bg-[#f6ffd9] p-2.5'>
+                                    <p className="text-[10px] leading-4 text-[#536800]">
+                                        Every AI feature uses GLAN Credits.
                                         Buy more coins anytime to continue using
                                         Resume Builder, Resume Scorer,
                                         AI Interview and Roadmap Generator.
@@ -213,10 +213,10 @@ function Billing({ user, setUser }) {
 
                 <div className='text-center'>
                     <h1 className="text-3xl font-bold text-[#0A0A0A]">
-                        Interview Coins
+                        GLAN Credits
                     </h1>
                     <p className="mt-2 text-sm text-black/45">
-                        Use coins for Resume Scoring, Resume Builder, AI Interviews, and Roadmap Generation.
+                        Use GLAN Credits for Resume Scoring, Resume Builder, AI Interviews, and Roadmap Generation.
                     </p>
                 </div>
 

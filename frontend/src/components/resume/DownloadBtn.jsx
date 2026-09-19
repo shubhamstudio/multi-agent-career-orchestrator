@@ -1,7 +1,9 @@
 import { FiDownload } from 'react-icons/fi'
 import { useReactToPrint } from "react-to-print";
 import { spendCoins } from '../../apis/user.api';
+import { useCreditConfirmation } from '../../contexts/CreditConfirmationContext';
 function DownloadBtn({ docRef, setUser }) {
+    const { confirmCreditSpend } = useCreditConfirmation()
 
     const handlePdf = useReactToPrint({
         contentRef: docRef,
@@ -10,6 +12,8 @@ function DownloadBtn({ docRef, setUser }) {
 
     const handleDownload = async () => {
         try {
+            const approved = await confirmCreditSpend({ coins: 10, action: 'download-pdf' })
+            if (!approved) return
 
             const coinResponse = await spendCoins({ coins: 10, action: "download-pdf" })
 
@@ -22,7 +26,7 @@ function DownloadBtn({ docRef, setUser }) {
 
         } catch (error) {
             if (error.response?.status === 403) {
-                return alert("Not enough Interview Coins.");
+                return alert("Not enough GLAN Credits.");
             }
             alert(
                 error.response?.data?.message ||

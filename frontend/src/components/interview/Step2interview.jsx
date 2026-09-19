@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import femaleVideo from "../../assets/female-ai.mp4"
+import interviewerSpeakingVideo from "../../assets/HR_Interviewer_Speaking.mp4"
+import interviewerListeningVideo from "../../assets/HR_Interviewer_Listening.mp4"
 import { AnimatePresence, motion } from "motion/react"
 import { FiArrowRight, FiCamera, FiCameraOff, FiClock, FiCode, FiLogOut, FiMessageSquare, FiMic, FiMicOff } from 'react-icons/fi'
 import CodeEditor from './CodeEditor'
@@ -63,10 +64,23 @@ const navigate = useNavigate()
   const transcriptionSessionRef = useRef(0);
   const submissionInProgressRef = useRef(false);
 
-  const videoSource = femaleVideo
+  const videoSource = isAIPlaying ? interviewerSpeakingVideo : interviewerListeningVideo
+  const shouldPlayInterviewerVideo = isAIPlaying || isListening
   const progress = ((currentIndex + 1)/(interviewData.totalQuestions))*100
   const showMicon = micOn && !isAIPlaying
   const answerWithInterim = `${answer}${interimTranscript ? `${answer.trim() ? " " : ""}${interimTranscript}` : ""}`
+
+  useEffect(() => {
+    const video = aiVideoRef.current
+    if (!video) return
+
+    video.currentTime = 0
+    if (shouldPlayInterviewerVideo) {
+      video.play().catch(() => {})
+    } else {
+      video.pause()
+    }
+  }, [videoSource, shouldPlayInterviewerVideo])
 
   const appendToAnswer = useCallback((transcript) => {
     const cleanedTranscript = transcript.trim();
@@ -90,7 +104,7 @@ const navigate = useNavigate()
     setIsTranscribing(true)
 
     const job = transcriptionQueueRef.current.then(async () => {
-      const result = await transcribeInterviewAudio(audioBlob)
+      const result = await transcribeInterviewAudio(audioBlob, interviewData.interviewId)
       if (sessionId === transcriptionSessionRef.current && result?.text) {
         appendToAnswer(result.text)
       }
@@ -108,7 +122,7 @@ const navigate = useNavigate()
     })
 
     return settledJob
-  }, [appendToAnswer])
+  }, [appendToAnswer, interviewData.interviewId])
 
   const stopRecordedMic = useCallback(({ discard = false } = {}) => {
     if (recordingChunkTimerRef.current) {
@@ -447,7 +461,6 @@ const navigate = useNavigate()
           if (speechSession !== speechSessionRef.current) return
           aiPlayingRef.current = true
           setIsAIPlaying(true)
-          aiVideoRef.current?.play().catch(() => {})
         },
       })
       playbackError = result?.error
@@ -457,7 +470,6 @@ const navigate = useNavigate()
 
     if (speechSession !== speechSessionRef.current) return
 
-    aiVideoRef.current?.pause()
     aiPlayingRef.current = false
     setIsAIPlaying(false)
     if (playbackError) {
@@ -695,6 +707,9 @@ const navigate = useNavigate()
               playsInline
               preload="auto"
               loop
+              onCanPlay={() => {
+                if (shouldPlayInterviewerVideo) aiVideoRef.current?.play().catch(() => {})
+              }}
               className="w-full h-full object-cover"
             />
             {isAIPlaying && (

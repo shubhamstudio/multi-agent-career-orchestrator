@@ -1,14 +1,10 @@
 import api from "../utils/axios"
+import { uploadUserFile } from "./blobUpload.api"
 
 
 export const startInterview = async (data) => {
-    try {
-        const response = await api.post("/api/interview/start" , data)
-        return response.data
-    } catch (error) {
-        console.log(error)
-        return null
-    }
+    const response = await api.post("/api/interview/start", data, { timeout: 300000 })
+    return response.data
 }
 
 export const getInterview = async (id) => {
@@ -45,13 +41,21 @@ export const getAllInterviews = async () => {
     }
 }
 
-export const transcribeInterviewAudio = async (audioBlob) => {
-    const form = new FormData()
+export const transcribeInterviewAudio = async (audioBlob, interviewId) => {
     const extension = audioBlob.type.includes("ogg") ? "ogg" : "webm"
-    form.append("audio", audioBlob, `interview-answer.${extension}`)
+    const filename = `interview-answer.${extension}`
+    const blob = await uploadUserFile({
+        kind: "interview-audio",
+        file: audioBlob,
+        filename,
+    })
 
-    const response = await api.post("/api/interview/transcribe", form, {
-        timeout: 35000,
+    const response = await api.post("/api/interview/transcribe", {
+        blobUrl: blob.url,
+        interviewId,
+        filename,
+    }, {
+        timeout: 300000,
     })
 
     return response.data

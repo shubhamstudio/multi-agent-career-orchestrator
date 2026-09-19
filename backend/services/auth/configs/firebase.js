@@ -1,14 +1,18 @@
-import { readFileSync } from "fs"
-import { cert, initializeApp } from "firebase-admin"
+import { cert, getApps, initializeApp } from "firebase-admin"
 
-if (!process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_PATH is required")
+if (!process.env.FIREBASE_SERVICE_ACCOUNT_B64) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_B64 is required")
 }
 
-const serviceAccount = JSON.parse(
-    readFileSync(new URL(process.env.FIREBASE_SERVICE_ACCOUNT_PATH, import.meta.url), "utf8")
-)
+let serviceAccount
+try {
+    serviceAccount = JSON.parse(
+        Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_B64, "base64").toString("utf8")
+    )
+} catch {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_B64 must contain base64-encoded service-account JSON")
+}
 
-export const app = initializeApp({
+export const app = getApps()[0] || initializeApp({
     credential: cert(serviceAccount),
 })

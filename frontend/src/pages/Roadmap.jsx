@@ -9,8 +9,9 @@ import { useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import RoadmapResult from '../components/roadmap/RoadmapResult'
 import Brand from '../components/Brand'
+import { useCreditConfirmation } from '../contexts/CreditConfirmationContext'
 const PACKAGE_OPTIONS = ["10 LPA", "15 LPA", "20 LPA", "30 LPA", "40 LPA"];
-const SUPPORTED_ROLE_PATTERN = /front\s*-?end|frontend|react|web\s*(developer|engineer)|ui\s*(developer|engineer)|machine\s*learning|\bml\b|ai\s*(engineer|developer)|data\s*scientist|back\s*-?end|backend|node|api\s*(developer|engineer)|server|full\s*stack/i;
+const ROLE_SUGGESTIONS = ["Frontend Dev", "Backend Eng", "Data Analyst", "ML Engineer"];
 /* eslint-disable react-hooks/set-state-in-effect */
 function Roadmap({ setUser }) {
     const navigate = useNavigate()
@@ -26,6 +27,7 @@ function Roadmap({ setUser }) {
     const [historyLoading, setHistoryLoading] = useState(false);
     const [history, setHistory] = useState([]);
     const [error, setError] = useState("");
+    const { confirmCreditSpend } = useCreditConfirmation()
 
     const { resume } = useSelector((state) => state.resume)
 
@@ -89,10 +91,8 @@ function Roadmap({ setUser }) {
 
     const handleGenerate = async () => {
         if (!role.trim() || loading) return;
-        if (!SUPPORTED_ROLE_PATTERN.test(role.trim())) {
-            setError("Choose Frontend Developer, Backend Developer, or Machine Learning Engineer for this version.")
-            return
-        }
+        const approved = await confirmCreditSpend({ coins: 20, action: 'roadmap-builder' })
+        if (!approved) return
         setLoading(true);
         setError("");
         try {
@@ -144,7 +144,7 @@ getAllRoadmaps()
                       </div>
                     </div>
 
-                    <button onClick={() => setHistoryOpen(!historyOpen)} className='flex h-8 items-center justify-center gap-1 rounded-lg border border-[#ebe6e1] bg-white px-2.5 text-[10px] text-[#625f5c] transition hover:border-[#e2ff70] hover:text-[#708900]'>
+                    <button onClick={() => setHistoryOpen(!historyOpen)} className='flex h-8 items-center justify-center gap-1 rounded-lg border border-[#c6ee00] bg-[#d2ff00] px-2.5 text-[10px] font-semibold text-[#273000] transition hover:border-[#a7cc00] hover:bg-[#c6ee00]'>
                         <FiClock />
                         <span className="hidden sm:inline">History</span>
                     </button>
@@ -180,9 +180,9 @@ getAllRoadmaps()
 
                                 {error && <p className="mt-4 text-xs text-red-500 max-w-xs sm:max-w-md">{error}</p>}
 
-                                <div className='mt-7 grid w-full max-w-sm grid-cols-3 gap-2 sm:mt-8 sm:gap-3'>
+                                <div className='mt-7 grid w-full max-w-sm grid-cols-2 gap-2 sm:mt-8 sm:gap-3'>
                                     {
-                                        ["Frontend Dev", "Backend Eng", "ML Engineer"].map((r) => (
+                                        ROLE_SUGGESTIONS.map((r) => (
                                             <motion.button
                                                 key={r}
                                                 onClick={() => setRole(r)}

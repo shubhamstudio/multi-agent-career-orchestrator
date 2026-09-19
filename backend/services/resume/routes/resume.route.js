@@ -1,12 +1,12 @@
 import express from "express"
 
-import { getResume, uploadResume } from "../controllers/resume.controller.js"
-import { upload } from "../middleware/multer.js"
+import { generateResume, getResume, processResume } from "../controllers/resume.controller.js"
 
 const resumeRouter = express.Router()
 
 
-resumeRouter.post("/upload", upload.single("resume"), uploadResume)
+resumeRouter.post("/process", processResume)
+resumeRouter.post("/generate", generateResume)
 
 resumeRouter.get("/get-resume", getResume)
 

@@ -1,8 +1,11 @@
 import fs from "fs"
 import crypto from "crypto"
+import os from "os"
 import path from "path"
 import multer from "multer"
-const uploadPath = "./uploads"
+// Function filesystems are ephemeral. Uploads are only needed while pdf-parse
+// runs, so use the writable temporary directory and delete them after.
+const uploadPath = path.join(os.tmpdir(), "glangen-resume-uploads")
 
 if(!fs.existsSync(uploadPath)){
 fs.mkdirSync(uploadPath)

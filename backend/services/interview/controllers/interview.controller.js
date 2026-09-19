@@ -1,6 +1,7 @@
 import redis from "../../../shared/redis/redis.js";
 import graph from "../graph/graph.js";
 import Interview from "../models/interview.model.js";
+import { get } from "@vercel/blob";
 
 export const createVoiceToken = async (req, res) => {
     try {
@@ -51,10 +52,57 @@ export const createVoiceToken = async (req, res) => {
 
 export const transcribeAudio = async (req, res) => {
     try {
-        if (!req.file?.buffer?.length) {
+        const { blobUrl, interviewId, filename = "interview-answer.webm" } = req.body
+        const userId = req.headers["x-user-id"]
+
+        if (!blobUrl || typeof blobUrl !== "string" || !interviewId) {
             return res.status(400).json({
                 success: false,
-                message: "An audio recording is required",
+                message: "An interview ID and audio Blob URL are required",
+            })
+        }
+
+        const interview = await Interview.findOne({ _id: interviewId, userId })
+        if (!interview || interview.status === "completed") {
+            return res.status(404).json({
+                success: false,
+                message: "Active interview not found",
+            })
+        }
+
+        const currentQuestion = interview.questions[interview.currentQuestion]
+        if (!currentQuestion) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid interview question",
+            })
+        }
+
+        const blobResult = await get(blobUrl, { access: "private" })
+        const expectedPathPrefix = `interview-audio/${userId}/`
+        if (!blobResult || !blobResult.blob.pathname.startsWith(expectedPathPrefix)) {
+            return res.status(400).json({
+                success: false,
+                message: "The audio file is not available for this user",
+            })
+        }
+
+        const supportedAudioTypes = new Set([
+            "audio/flac", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav", "audio/webm", "video/webm",
+        ])
+        const mimeType = blobResult.blob.contentType.split(";")[0]
+        if (!supportedAudioTypes.has(mimeType)) {
+            return res.status(400).json({
+                success: false,
+                message: "Unsupported audio format",
+            })
+        }
+
+        const audioBuffer = Buffer.from(await new Response(blobResult.stream).arrayBuffer())
+        if (!audioBuffer.length || audioBuffer.length > 10 * 1024 * 1024) {
+            return res.status(400).json({
+                success: false,
+                message: "Audio must be between 1 byte and 10MB",
             })
         }
 
@@ -65,7 +113,6 @@ export const transcribeAudio = async (req, res) => {
             })
         }
 
-        const mimeType = req.file.mimetype.split(";")[0]
         const transcriptionUrl = new URL(
             process.env.DEEPGRAM_TRANSCRIPTION_URL || "https://api.deepgram.com/v1/listen"
         )
@@ -80,7 +127,7 @@ export const transcribeAudio = async (req, res) => {
                 Authorization: `Token ${process.env.DEEPGRAM_API_KEY}`,
                 "Content-Type": mimeType,
             },
-            body: req.file.buffer,
+            body: audioBuffer,
             signal: AbortSignal.timeout(30_000),
         })
 
@@ -94,6 +141,17 @@ export const transcribeAudio = async (req, res) => {
         }
 
         const transcript = result.results?.channels?.[0]?.alternatives?.[0]?.transcript?.trim() || ""
+
+        currentQuestion.audioRecords.push({
+            url: blobResult.blob.url,
+            pathname: blobResult.blob.pathname,
+            filename: String(filename).slice(0, 255),
+            contentType: mimeType,
+            transcript,
+            recordedAt: new Date(),
+        })
+        await interview.save()
+        await redis.del(`interviews:${userId}`)
 
         return res.status(200).json({
             success: true,
@@ -118,7 +176,11 @@ export const startInterview = async (req, res) => {
             useResume = false,
             resume = {}, } = req.body;
 
-        if (!type && !role) {
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Sign in to start an interview." });
+        }
+
+        if (!type || !role?.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Interview type and role are required",
@@ -127,7 +189,7 @@ export const startInterview = async (req, res) => {
 
         const result = await graph.invoke({
             action: "start",
-            role,
+            role: role.trim(),
             type,
             useResume,
             resume
@@ -147,7 +209,7 @@ export const startInterview = async (req, res) => {
 
             type,
 
-            role,
+            role: role.trim(),
 
             useResume,
 

@@ -22,6 +22,16 @@ const educationSchema = new mongoose.Schema({
   year: { type: String, default: "" },
 }, { _id: false });
 
+const sourceFileSchema = new mongoose.Schema({
+  url: { type: String, required: true },
+  pathname: { type: String, required: true },
+  filename: { type: String, default: "" },
+  contentType: { type: String, default: "application/pdf" },
+  uploadedAt: { type: Date, default: Date.now },
+  processedAt: { type: Date, default: Date.now },
+  extractedText: { type: String, default: "" },
+  analysis: { type: mongoose.Schema.Types.Mixed, default: {} },
+}, { _id: false });
 
 const resumeSchema = new mongoose.Schema({
     userId: {
@@ -43,6 +53,16 @@ const resumeSchema = new mongoose.Schema({
 
     scoreHistory: {
       type: [{ score: { type: Number, required: true }, analyzedAt: { type: Date, default: Date.now } }],
+      default: [],
+    },
+
+    sourceFile: {
+      type: sourceFileSchema,
+      default: undefined,
+    },
+
+    sourceFiles: {
+      type: [sourceFileSchema],
       default: [],
     },
 
