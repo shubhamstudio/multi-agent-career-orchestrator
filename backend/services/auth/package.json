@@ -20,5 +20,8 @@
     "mongoose": "^9.9.2",
     "nodemon": "^3.1.14",
     "serverless-http": "^4.0.0"
+  },
+  "overrides": {
+    "jose": "4.15.9"
   }
 }
