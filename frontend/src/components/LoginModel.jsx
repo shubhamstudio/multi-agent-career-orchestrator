@@ -7,6 +7,26 @@ import { auth, provider } from "../utils/firebase.js"
 import api from "../utils/axios.js"
 import { BrandMark } from "./Brand.jsx"
 
+const withTimeout = (promise, timeoutMs, errorCode) =>
+  new Promise((resolve, reject) => {
+    const timeoutId = window.setTimeout(() => {
+      const error = new Error("Google sign-in took too long. Please try again.")
+      error.code = errorCode
+      reject(error)
+    }, timeoutMs)
+
+    promise.then(
+      (value) => {
+        window.clearTimeout(timeoutId)
+        resolve(value)
+      },
+      (error) => {
+        window.clearTimeout(timeoutId)
+        reject(error)
+      }
+    )
+  })
+
 function LoginModel({ onClose, setUser }) {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
@@ -15,14 +35,22 @@ function LoginModel({ onClose, setUser }) {
     setLoading(true)
     setError("")
     try {
-      const result = await signInWithPopup(auth, provider)
+      const result = await withTimeout(
+        signInWithPopup(auth, provider),
+        30_000,
+        "auth/popup-timeout"
+      )
       const token = await result.user.getIdToken(true)
 
       if (!token || token.split(".").length !== 3) {
         throw new Error("Firebase did not return a valid ID token.")
       }
 
-      const response = await api.post("/api/auth/login", { token })
+      const response = await api.post(
+        "/api/auth/login",
+        { token },
+        { timeout: 15_000 }
+      )
 
       setUser(response?.data?.user)
 
