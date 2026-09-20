@@ -1,25 +1,27 @@
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Routes , Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
-import Dashboard from './pages/Dashboard'
-import { useState } from 'react'
-import { useEffect } from 'react'
 import { getCurrentUser } from './apis/user.api'
-import Scorer from './pages/Scorer'
 import { getResume } from './apis/resume.api'
 import { useDispatch } from 'react-redux'
 import { setResume } from './redux/resumeSlice'
-import ResumeBuilder from './pages/ResumeBuilder'
-import InterviewStart from './pages/InterviewStart'
-import InterviewPage from './pages/InterviewPage'
-import InterviewReport from './pages/InterviewReport'
-import Roadmap from './pages/Roadmap'
-import Billing from './pages/Billing'
-import Feedback from './pages/Feedback'
-import Profile from './pages/Profile'
-import About from './pages/About'
-import Faq from './pages/Faq'
-import Legal from './pages/Legal'
 import { CreditConfirmationProvider } from './contexts/CreditConfirmationContext'
+
+// Keep the public landing page small. Monaco, video interview tooling, charts, and
+// PDF generation only need to download after an authenticated user opens them.
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Scorer = lazy(() => import('./pages/Scorer'))
+const ResumeBuilder = lazy(() => import('./pages/ResumeBuilder'))
+const InterviewStart = lazy(() => import('./pages/InterviewStart'))
+const InterviewPage = lazy(() => import('./pages/InterviewPage'))
+const InterviewReport = lazy(() => import('./pages/InterviewReport'))
+const Roadmap = lazy(() => import('./pages/Roadmap'))
+const Billing = lazy(() => import('./pages/Billing'))
+const Feedback = lazy(() => import('./pages/Feedback'))
+const Profile = lazy(() => import('./pages/Profile'))
+const About = lazy(() => import('./pages/About'))
+const Faq = lazy(() => import('./pages/Faq'))
+const Legal = lazy(() => import('./pages/Legal'))
 
 function App() {
   const [user,setUser]= useState(null)
@@ -48,6 +50,10 @@ function App() {
 
   useEffect(()=>{
 
+    if (!user) {
+      return
+    }
+
     const getResumeData = async()=>{
       try {
         const result = await getResume()
@@ -60,7 +66,7 @@ function App() {
 
     getResumeData()
 
-  },[dispatch])
+  },[dispatch, user])
 
 
   if(loading){
@@ -73,6 +79,7 @@ function App() {
 
   return (
    <CreditConfirmationProvider>
+   <Suspense fallback={<div className="fixed top-0 left-0 w-full z-[9999]"><div className="h-1 bg-black animate-pulse w-full" /></div>}>
 
    <Routes>
     <Route path='/about' element={<About />}/>
@@ -125,6 +132,7 @@ function App() {
 
 
    </Routes>
+   </Suspense>
    </CreditConfirmationProvider>
   )
 }

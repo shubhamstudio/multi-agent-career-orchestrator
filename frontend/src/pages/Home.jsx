@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { motion } from "motion/react"
 import { FaArrowRight } from "react-icons/fa"
 import { FiCheckCircle, FiFileText, FiMap, FiMic, FiBarChart2, FiStar } from "react-icons/fi"
-import LoginModel from './../components/LoginModel'
 import Footer from './../components/Footer'
 import Brand from './../components/Brand'
 import "./../index.css"
 import { Link } from 'react-router-dom'
+
+// Firebase Auth is only needed after the visitor chooses to sign in.
+const LoginModel = lazy(() => import('./../components/LoginModel'))
 
 const Home = ({ setUser }) => {
     const [showLogin, setShowLogin] = useState(false)
@@ -213,7 +215,9 @@ const Home = ({ setUser }) => {
 
             {/* Login Modal */}
             {showLogin && (
-                <LoginModel onClose={() => setShowLogin(false)} setUser={setUser} />
+                <Suspense fallback={null}>
+                    <LoginModel onClose={() => setShowLogin(false)} setUser={setUser} />
+                </Suspense>
             )}
             <Footer />
         </div>

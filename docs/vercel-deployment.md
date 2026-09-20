@@ -2,6 +2,12 @@
 
 Deploy the frontend and each backend service as separate Vercel projects connected to this repository. For every backend project, set the Root Directory shown below and enable **Include source files outside of the Root Directory**; each service imports `backend/shared`.
 
+## Required Vercel project settings
+
+For the Gateway and every backend service, Vercel must use the service's `api/index.js` as a Serverless Function. Leave **Framework Preset**, **Build Command**, and **Output Directory** at their defaults; specifically, do not set the output directory to `.` or `index.js`. Setting an output directory causes Vercel to publish the source file as a static asset instead of executing it.
+
+After deploying, open the service URL directly. The Gateway must return `Hello from Gateway`; the Auth service should return a JSON `401 Unauthorized service request` when opened directly. If the browser displays `import "dotenv/config"` instead, the project has been deployed as static files and login requests will time out regardless of environment-variable values.
+
 ## Deployable services
 
 | Project | Root directory | Function duration | Required environment variables |
