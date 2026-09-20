@@ -11,10 +11,13 @@ export const uploadUserFile = async ({ kind, file, filename }) => {
     const { authorization, pathnamePrefix } = authorizationResponse.data
     const safeFilename = sanitizeFilename(filename || file.name || `${kind}-upload`)
     const gatewayUrl = api.defaults.baseURL.replace(/\/$/, "")
+    // MediaRecorder reports values such as "audio/webm;codecs=opus", while
+    // the server-issued Vercel Blob allowlist uses base MIME types.
+    const contentType = file.type?.split(";", 1)[0] || undefined
 
     return upload(`${pathnamePrefix}/${safeFilename}`, file, {
         access: "private",
-        contentType: file.type || undefined,
+        contentType,
         handleUploadUrl: `${gatewayUrl}/api/uploads/${kind}`,
         headers: {
             "x-upload-authorization": authorization,
