@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import RoadmapResult from '../components/roadmap/RoadmapResult'
 import Brand from '../components/Brand'
 import { useCreditConfirmation } from '../contexts/CreditConfirmationContext'
+import { useFeedback } from '../contexts/FeedbackContext'
 const PACKAGE_OPTIONS = ["10 LPA", "15 LPA", "20 LPA", "30 LPA", "40 LPA"];
 const ROLE_SUGGESTIONS = ["Frontend Dev", "Backend Eng", "Data Analyst", "ML Engineer"];
 /* eslint-disable react-hooks/set-state-in-effect */
@@ -27,7 +28,9 @@ function Roadmap({ setUser }) {
     const [historyLoading, setHistoryLoading] = useState(false);
     const [history, setHistory] = useState([]);
     const [error, setError] = useState("");
+    const [deletingId, setDeletingId] = useState(null)
     const { confirmCreditSpend } = useCreditConfirmation()
+    const { confirmAction, notify } = useFeedback()
 
     const { resume } = useSelector((state) => state.resume)
 
@@ -69,7 +72,15 @@ function Roadmap({ setUser }) {
     }
 
     const deleteRoadmap = async (roadmapToDelete) => {
-        if (!window.confirm(`Delete “${roadmapToDelete.title}”? This cannot be undone.`)) return
+        if (deletingId) return
+        const approved = await confirmAction({
+            title: 'Delete this roadmap?',
+            description: `“${roadmapToDelete.title}” and its saved progress will be permanently removed.`,
+            confirmLabel: 'Delete roadmap',
+            tone: 'danger',
+        })
+        if (!approved) return
+        setDeletingId(roadmapToDelete._id)
         try {
             await api.delete(`/api/roadmap/${roadmapToDelete._id}`)
             setHistory((current) => current.filter((item) => item._id !== roadmapToDelete._id))
@@ -78,8 +89,13 @@ function Roadmap({ setUser }) {
                 navigate("/roadmap", { replace: true })
             }
             setError("")
+            notify('The roadmap has been deleted.', { type: 'success', title: 'Roadmap deleted' })
         } catch (error) {
-            setError(error.response?.data?.message || "Failed to delete roadmap.")
+            const message = error.response?.data?.message || "Failed to delete roadmap."
+            setError(message)
+            notify(message, { type: 'error', title: 'Delete failed' })
+        } finally {
+            setDeletingId(null)
         }
     }
 
@@ -103,7 +119,7 @@ function Roadmap({ setUser }) {
                 }))
             } catch {
                 setLoading(false)
-                alert("Failed to use coins.")
+                notify("We could not reserve your credits. Please try again.", { type: 'error' })
                 return;
             }
 
@@ -205,6 +221,7 @@ getAllRoadmaps()
                                 onClear={()=>setRoadmap(null)}
                                 onProgress={updateTopicProgress}
                                 onDelete={() => deleteRoadmap(roadmap)}
+                                deleting={deletingId === roadmap._id}
                                 />
                             </div>
 
@@ -375,7 +392,7 @@ getAllRoadmaps()
                                                         <p className='mt-1 text-xs text-[#9a938e]'>
                                                         {new Date(h.createdAt).toLocaleDateString()}</p>
                                                     </button>
-                                                    <button type="button" onClick={() => deleteRoadmap(h)} aria-label={`Delete ${h.title}`} title="Delete roadmap" className='absolute right-3 top-3 grid h-7 w-7 cursor-pointer place-items-center rounded-lg text-[#9a938e] opacity-70 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100'><FiTrash2 size={13} /></button>
+                                                    <button type="button" disabled={deletingId === h._id} onClick={() => deleteRoadmap(h)} aria-label={`Delete ${h.title}`} title="Delete roadmap" className='absolute right-3 top-3 grid h-7 w-7 cursor-pointer place-items-center rounded-lg text-[#9a938e] opacity-70 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50'>{deletingId === h._id ? <FiZap className='animate-pulse' size={13} /> : <FiTrash2 size={13} />}</button>
                                                     </div>
                                                 ))
                                             )}

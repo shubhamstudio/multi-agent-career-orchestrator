@@ -11,6 +11,7 @@ import { uploadUserFile } from '../../apis/blobUpload.api'
 import ResumeScanVisual from '../ResumeScanVisual'
 import { primeDeepgramAudio } from '../../utils/deepgramFluxTts'
 import { useCreditConfirmation } from '../../contexts/CreditConfirmationContext'
+import { useFeedback } from '../../contexts/FeedbackContext'
 function Step1setup({ user, setUser }) {
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -22,10 +23,11 @@ function Step1setup({ user, setUser }) {
     const [uploading, setUploading] = useState(false)
     const [starting, setStarting] = useState(false)
     const { confirmCreditSpend } = useCreditConfirmation()
+    const { notify } = useFeedback()
 
     const uploadResume = async () => {
         if (!file) {
-            alert("Please select a PDF")
+            notify("Choose a PDF before uploading it.", { type: 'info', title: 'Resume needed' })
             return
         }
         const approved = await confirmCreditSpend({ coins: 10, action: 'resume-scorer' })
@@ -41,7 +43,7 @@ function Step1setup({ user, setUser }) {
             }))
             } catch {
                 setUploading(false)
-                alert("Failed to use coins.")
+                notify("We could not reserve your credits. Please try again.", { type: 'error' })
                 return;
             }
 
@@ -53,11 +55,12 @@ function Step1setup({ user, setUser }) {
             }, { timeout: 300000 })
 
             dispatch(setResume(response?.data?.data))
+            notify("Your résumé is ready to personalize the interview.", { type: 'success', title: 'Resume uploaded' })
             setUploading(false)
             setFile(null)
         } catch (error) {
             console.error("Resume upload failed:", error.response?.data || error)
-            alert(error.response?.data?.message || "Upload failed")
+            notify(error.response?.data?.message || "We could not upload that résumé. Please try again.", { type: 'error', title: 'Upload failed' })
             setUploading(false)
         }
     }
@@ -80,14 +83,14 @@ function Step1setup({ user, setUser }) {
                     ...prev, interviewCoin: coinResponse?.interviewCoin,
                 }))
             } catch {
-                alert("Failed to use coins.")
+                notify("We could not reserve your credits. Please try again.", { type: 'error' })
                 return
             }
 
             navigate(`/interview/${response.interviewId}`)
         } catch (error) {
             console.error("Interview start failed:", error.response?.data || error)
-            alert(error.response?.data?.message || error.message || "Unable to start the interview. Please try again.")
+            notify(error.response?.data?.message || error.message || "We could not start the interview. Please try again.", { type: 'error', title: 'Interview unavailable' })
         } finally {
             setStarting(false)
         }

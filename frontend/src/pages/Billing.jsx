@@ -6,6 +6,7 @@ import PricingCard from '../components/PricingCard'
 import api from '../utils/axios'
 import { useNavigate } from 'react-router-dom'
 import Brand from '../components/Brand'
+import { useFeedback } from '../contexts/FeedbackContext'
 
 const plan = [
     {
@@ -53,11 +54,14 @@ const loadRazorpay = () => new Promise((resolve) => {
 
 function Billing({ user, setUser }) {
     const [showMenu, setShowMenu] = useState(false)
+    const [paymentState, setPaymentState] = useState('idle')
 
     const navigate = useNavigate()
+    const { notify } = useFeedback()
     const handlePayment = async (plan) => {
-        if (plan.disabled) return;
+        if (plan.disabled || paymentState !== 'idle') return;
         try {
+            setPaymentState('initializing')
             const checkoutLoaded = await loadRazorpay()
             if (!checkoutLoaded) {
                 throw new Error("Unable to load Razorpay Checkout. Check your internet connection and try again.")
@@ -84,22 +88,21 @@ function Billing({ user, setUser }) {
 
                 handler: async function (response) {
                     try {
+                        setPaymentState('verifying')
                         const coinRes = await api.post("/api/billing/verify", response)
 
                         setUser((prev) => ({
                             ...prev, interviewCoin: coinRes.data.interviewCoin
                         }))
 
-                        alert("Payment Successful 🎉")
+                        notify(`${plan.coins} GLAN Credits have been added to your account.`, { type: 'success', title: 'Payment successful' })
                         navigate("/dashboard")
 
                     } catch (error) {
                         console.log(error);
-
-                        alert(
-                            error?.response?.data?.message ||
-                            "Payment verification failed"
-                        );
+                        notify(error?.response?.data?.message || "We could not verify that payment. If you were charged, please contact support.", { type: 'error', title: 'Payment verification failed' })
+                    } finally {
+                        setPaymentState('idle')
                     }
 
                 },
@@ -114,11 +117,13 @@ function Billing({ user, setUser }) {
 
             const razorpay = new window.Razorpay(options);
             razorpay.open()
+            setPaymentState('idle')
 
 
         } catch (error) {
             console.log(error)
-            alert(error.response?.data?.message || error.message || "Unable to start payment")
+            notify(error.response?.data?.message || error.message || "We could not start secure checkout. Please try again.", { type: 'error', title: 'Checkout unavailable' })
+            setPaymentState('idle')
         }
     }
     return (
@@ -224,6 +229,7 @@ function Billing({ user, setUser }) {
                     {plan.map((plan) => (
                         <PricingCard key={plan.title}
                             {...plan}
+                            loading={plan.title === "Starter" && paymentState !== 'idle'}
                             onBuy={() => handlePayment(plan)} />
                     ))
                     }

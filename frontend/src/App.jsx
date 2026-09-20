@@ -6,6 +6,13 @@ import { getResume } from './apis/resume.api'
 import { useDispatch } from 'react-redux'
 import { setResume } from './redux/resumeSlice'
 import { CreditConfirmationProvider } from './contexts/CreditConfirmationContext'
+import { FeedbackProvider } from './contexts/FeedbackContext'
+
+const AppLoadingBar = () => (
+  <div className="fixed top-0 left-0 z-[9999] w-full" aria-label="Loading">
+    <div className="app-loading-bar h-1 w-full" />
+  </div>
+)
 
 // Keep the public landing page small. Monaco, video interview tooling, charts, and
 // PDF generation only need to download after an authenticated user opens them.
@@ -70,16 +77,13 @@ function App() {
 
 
   if(loading){
-    return(
-      <div className="fixed top-0 left-0 w-full z-[9999]">
-        <div className="h-1 bg-black animate-pulse w-full" />
-      </div>
-    )
+    return <AppLoadingBar />
   }
 
   return (
+   <FeedbackProvider>
    <CreditConfirmationProvider>
-   <Suspense fallback={<div className="fixed top-0 left-0 w-full z-[9999]"><div className="h-1 bg-black animate-pulse w-full" /></div>}>
+   <Suspense fallback={<AppLoadingBar />}>
 
    <Routes>
     <Route path='/about' element={<About />}/>
@@ -134,6 +138,7 @@ function App() {
    </Routes>
    </Suspense>
    </CreditConfirmationProvider>
+   </FeedbackProvider>
   )
 }
 

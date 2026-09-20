@@ -1,4 +1,4 @@
-import { FiCheck } from 'react-icons/fi'
+import { FiCheck, FiLoader } from 'react-icons/fi'
 import { GiTwoCoins } from 'react-icons/gi'
 import { motion } from 'motion/react'
 
@@ -11,10 +11,12 @@ function PricingCard({
     popular,
     disabled,
     onBuy,
+    loading = false,
 }) {
+    const unavailable = disabled || loading
     return (
         <motion.div
-        whileHover={disabled ? undefined : { y: -5, scale: 1.012 }}
+        whileHover={unavailable ? undefined : { y: -5, scale: 1.012 }}
         transition={{ type: "spring", stiffness: 360, damping: 24 }}
         className={`group relative w-full max-w-[320px] rounded-2xl overflow-hidden border p-5 bg-white transition-[border-color,box-shadow] duration-200 shadow-[0_12px_34px_rgba(71,85,105,0.08)]
         ${popular
@@ -59,19 +61,19 @@ function PricingCard({
                 ))}
             </div>
 
-            <motion.button disabled={disabled}
+            <motion.button disabled={unavailable}
             onClick={onBuy}
-            whileHover={disabled ? undefined : { scale: 1.025 }}
-            whileTap={disabled ? undefined : { scale: 0.965, y: 1 }}
+            whileHover={unavailable ? undefined : { scale: 1.025 }}
+            whileTap={unavailable ? undefined : { scale: 0.965, y: 1 }}
              className={`relative mt-5 w-full rounded-lg py-2 text-sm font-semibold transition-all duration-150
     ${
-      disabled
+      unavailable
         ? "cursor-not-allowed bg-gray-700 text-gray-400"
         : popular
         ? "cursor-pointer primary-gradient text-white shadow-[0_4px_14px_rgba(96,107,235,0.35)] hover:shadow-[0_7px_20px_rgba(96,107,235,0.48)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#606BEB] focus-visible:ring-offset-2"
         : "cursor-pointer bg-white border border-[#dce7f8] text-[#344054] hover:border-[#8e98ff]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#606BEB] focus-visible:ring-offset-2"
     }`}>
-        {button}
+        {loading ? <span className='flex items-center justify-center gap-2'><FiLoader className='animate-spin' /> Preparing checkout…</span> : button}
     </motion.button>
         </motion.div>
     )

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { FiAlertCircle, FiCheck, FiX, FiZap } from 'react-icons/fi';

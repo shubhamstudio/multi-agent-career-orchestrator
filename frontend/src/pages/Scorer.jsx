@@ -11,6 +11,7 @@ import { uploadUserFile } from '../apis/blobUpload.api'
 import ResumeScanVisual from '../components/ResumeScanVisual'
 import Brand from '../components/Brand'
 import { useCreditConfirmation } from '../contexts/CreditConfirmationContext'
+import { useFeedback } from '../contexts/FeedbackContext'
 const ScoreRing = ({ score }) => {
     const color = score >= 75 ? "#0f766e" : score >= 50 ? "#d97706" : "#e11d48";
     return (
@@ -92,6 +93,7 @@ function Scorer({ setUser }) {
     const dispatch = useDispatch()
     const { resume } = useSelector((state) => state.resume)
     const { confirmCreditSpend } = useCreditConfirmation()
+    const { notify } = useFeedback()
 
     const selectFile = (selectedFile) => {
         setFileError("")
@@ -111,7 +113,7 @@ function Scorer({ setUser }) {
 
     const uploadResume = async () => {
         if (!file) {
-            alert("Please select a PDF")
+            notify("Choose a PDF before starting the analysis.", { type: 'info', title: 'Resume needed' })
             return
         }
         const approved = await confirmCreditSpend({ coins: 10, action: 'resume-scorer' })
@@ -126,7 +128,7 @@ function Scorer({ setUser }) {
                 }))
             } catch {
                 setLoading(false)
-                alert("Failed to use coins.")
+                notify("We could not reserve your credits. Please try again.", { type: 'error' })
                 return;
             }
 
@@ -137,13 +139,14 @@ function Scorer({ setUser }) {
             }, { timeout: 300000 })
 
             dispatch(setResume(response?.data?.data))
+            notify("Your résumé has been analyzed and the score is ready.", { type: 'success', title: 'Analysis complete' })
             setLoading(false)
 
 
 
         } catch (error) {
             console.error("Resume upload failed:", error.response?.data || error)
-            alert(error.response?.data?.message || "Upload failed")
+            notify(error.response?.data?.message || "We could not analyze that résumé. Please try again.", { type: 'error', title: 'Analysis failed' })
             setLoading(false)
         }
     }

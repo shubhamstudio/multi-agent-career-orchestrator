@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { useMemo, useRef, useState } from "react";
-import { FiBookOpen, FiCheckCircle, FiClock, FiExternalLink, FiMap, FiPlay, FiTarget, FiTrash2, FiX } from "react-icons/fi";
+import { FiBookOpen, FiCheckCircle, FiClock, FiExternalLink, FiLoader, FiMap, FiPlay, FiTarget, FiTrash2, FiX } from "react-icons/fi";
 import RoadmapCanvas from "./RoadmapCanvas";
 
 const statusLabels = {
@@ -12,7 +12,7 @@ const statusLabels = {
 
 const emptyTopics = [];
 
-function RoadmapResult({ roadmap, onClear, onProgress, onDelete }) {
+function RoadmapResult({ roadmap, onClear, onProgress, onDelete, deleting = false }) {
   const [selectedId, setSelectedId] = useState(roadmap.nodes?.[0]?.id || "");
   const [saving, setSaving] = useState(false);
   const moduleDetailsRef = useRef(null);
@@ -64,7 +64,7 @@ function RoadmapResult({ roadmap, onClear, onProgress, onDelete }) {
             <p className="mt-0.5 text-sm text-[#77716d]">Target: <span className="font-medium text-[#708900]">{roadmap.targetPackage}</span></p>
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={onDelete} aria-label="Delete roadmap" title="Delete roadmap" className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg text-[#9a938e] transition-colors hover:bg-red-50 hover:text-red-600"><FiTrash2 size={15} /></button>
+            <button onClick={onDelete} disabled={deleting} aria-label="Delete roadmap" title="Delete roadmap" className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg text-[#9a938e] transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50">{deleting ? <FiLoader className="animate-spin" size={15} /> : <FiTrash2 size={15} />}</button>
             <button onClick={onClear} aria-label="Close roadmap" title="Close roadmap" className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg text-[#9a938e] transition-colors hover:bg-[#f6ffd9] hover:text-[#708900]"><FiX size={16} /></button>
           </div>
         </div>
