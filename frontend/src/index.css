@@ -411,51 +411,168 @@ body {
 @layer components {
   .login-overlay {
     @apply fixed inset-0 z-50 flex items-center justify-center
-    bg-black/50 backdrop-blur-sm px-4;
+    px-4;
+    background: rgba(23, 21, 20, 0.38);
+    backdrop-filter: blur(10px);
   }
 
   .login-card {
-    @apply relative w-full max-w-sm rounded-3xl p-8 overflow-hidden
-    bg-[#14151F]/95 border border-white/10 shadow-2xl backdrop-blur-xl;
+    @apply relative w-full max-w-[27rem] overflow-hidden rounded-[1.75rem] border border-[#e7e2dc] p-6 sm:p-8;
+    background: rgba(255, 253, 251, 0.97);
+    box-shadow: 0 28px 72px rgba(31, 27, 23, 0.22), 0 2px 8px rgba(31, 27, 23, 0.06);
   }
 
   .login-close-btn {
-    @apply absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center
-    rounded-full text-white/50 hover:text-white hover:bg-white/10
-    transition-colors cursor-pointer;
+    @apply absolute right-5 top-5 z-20 flex h-9 w-9 cursor-pointer items-center justify-center
+    rounded-full border border-[#e9e4de] bg-white text-[#6d625d] shadow-sm transition-all duration-200;
   }
 
-  .login-logo-badge {
-    @apply w-12 h-12 flex items-center justify-center rounded-2xl
-    bg-white/5 border border-white/10 mb-4;
+  .login-close-btn:hover {
+    color: #171514;
+    border-color: #d9d1c8;
+    transform: rotate(90deg);
+  }
+
+  .login-close-btn:focus-visible,
+  .login-google-btn:focus-visible {
+    outline: 3px solid rgba(192, 238, 0, 0.48);
+    outline-offset: 3px;
+  }
+
+  .login-card-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.6;
+    background-image:
+      linear-gradient(rgba(29, 25, 22, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(29, 25, 22, 0.035) 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(140deg, #000 0%, transparent 62%);
+  }
+
+  .login-card-glow {
+    position: absolute;
+    top: -85px;
+    right: -52px;
+    width: 205px;
+    height: 205px;
+    border-radius: 9999px;
+    pointer-events: none;
+    background: rgba(210, 255, 0, 0.28);
+    filter: blur(45px);
+    animation: login-glow-drift 7s ease-in-out infinite;
+  }
+
+  .login-backdrop-orb {
+    position: absolute;
+    width: 20rem;
+    height: 20rem;
+    border-radius: 9999px;
+    pointer-events: none;
+    filter: blur(90px);
+    opacity: 0.35;
+    animation: login-orb-drift 10s ease-in-out infinite alternate;
+  }
+
+  .login-backdrop-orb-left {
+    background: #d2ff00;
+    top: -9rem;
+    left: -8rem;
+  }
+
+  .login-backdrop-orb-right {
+    background: #fed7aa;
+    bottom: -11rem;
+    right: -8rem;
+    animation-delay: -4s;
+  }
+
+  .login-brand-row {
+    @apply flex items-center gap-2 text-sm font-bold tracking-[-0.02em] text-[#171514];
+  }
+
+  .login-brand-name {
+    @apply text-[13px] tracking-[-0.015em];
+  }
+
+  .login-intro {
+    @apply mt-9;
+  }
+
+  .login-eyebrow {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-[#e7e6cc] bg-[#faffdf] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#647900];
+  }
+
+  .login-status-dot {
+    @apply h-1.5 w-1.5 rounded-full bg-[#9bc000];
+    box-shadow: 0 0 0 3px rgba(210, 255, 0, 0.35);
+    animation: login-status-pulse 2s ease-out infinite;
   }
 
   .login-title {
-    @apply text-xl font-bold text-white text-center;
+    @apply mt-4 max-w-[20rem] text-3xl font-bold leading-[1.08] tracking-[-0.055em] text-[#171514] sm:text-[2rem];
   }
 
   .login-subtitle {
-    @apply text-sm text-white/50 text-center mt-1.5;
+    @apply mt-3 max-w-[22rem] text-sm leading-6 text-[#716862];
+  }
+
+  .login-action-area {
+    @apply mt-8;
   }
 
   .login-google-btn {
-    @apply w-full flex items-center justify-center gap-3 py-3 rounded-xl
-    border border-white/15 bg-white/10 backdrop-blur-md
-    hover:border-white/25 hover:bg-white/[0.14] shadow-inner
-    transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed
-    text-white font-medium text-sm;
+    @apply relative flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl border border-[#ded9d2] bg-white px-4 py-3.5 text-sm font-semibold text-[#292523] shadow-[0_5px_14px_rgba(44,33,27,0.07)] transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .login-google-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(210, 255, 0, 0.27) 49%, transparent 63%);
+    transform: translateX(-100%);
+    transition: opacity 0.2s ease, transform 0.5s ease;
+  }
+
+  .login-google-btn:hover:not(:disabled) {
+    border-color: #cdd997;
+    box-shadow: 0 12px 24px rgba(124, 146, 0, 0.13);
+  }
+
+  .login-google-btn:hover:not(:disabled)::before {
+    opacity: 1;
+    transform: translateX(100%);
+  }
+
+  .login-google-btn > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .login-button-arrow {
+    @apply absolute right-4 text-[#778e00] transition-transform duration-200;
+  }
+
+  .login-google-btn:hover:not(:disabled) .login-button-arrow {
+    transform: translateX(3px);
+  }
+
+  .login-assurance {
+    @apply mt-3 text-center text-xs leading-5 text-[#89807a];
   }
 
   .login-error {
-    @apply text-xs text-[#f9a8a4] text-center mt-3;
+    @apply mt-3 rounded-lg border border-[#f3d5d2] bg-[#fff4f2] px-3 py-2 text-center text-xs leading-5 text-[#a13e38];
   }
 
   .login-footer {
-    @apply mt-8 pt-4 border-t border-white/10 text-center w-full;
+    @apply mt-7 flex items-center gap-2 border-t border-[#ece7e2] pt-4 text-[#807771];
   }
 
   .login-footer-text {
-    @apply text-white/30 text-xs tracking-wide;
+    @apply text-xs leading-5;
   }
 }
 
@@ -463,14 +580,37 @@ body {
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  border-top-color: white;
+  border: 2px solid rgba(119, 142, 0, 0.2);
+  border-top-color: #778e00;
   animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes login-glow-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-14px, 16px, 0) scale(1.08); }
+}
+
+@keyframes login-orb-drift {
+  from { transform: translate3d(-10px, -8px, 0) scale(0.95); }
+  to { transform: translate3d(20px, 18px, 0) scale(1.08); }
+}
+
+@keyframes login-status-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(210, 255, 0, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(210, 255, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card-glow,
+  .login-backdrop-orb,
+  .login-status-dot {
+    animation: none;
   }
 }
 

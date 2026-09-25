@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from "motion/react"
-import { FaTimes } from "react-icons/fa"
+import { FaArrowRight, FaShieldAlt, FaTimes } from "react-icons/fa"
 import { FcGoogle } from "react-icons/fc"
 import { signInWithPopup } from "firebase/auth"
 import { auth, provider } from "../utils/firebase.js"
@@ -30,6 +30,18 @@ const withTimeout = (promise, timeoutMs, errorCode) =>
 function LoginModel({ onClose, setUser }) {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
+  const closeButtonRef = React.useRef(null)
+
+  React.useEffect(() => {
+    closeButtonRef.current?.focus()
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" && !loading) onClose()
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [loading, onClose])
 
   const handleGoogleAuth = async () => {
     setLoading(true)
@@ -76,6 +88,9 @@ function LoginModel({ onClose, setUser }) {
         onClick={onClose}
         className='login-overlay'
       >
+        <div className='login-backdrop-orb login-backdrop-orb-left' />
+        <div className='login-backdrop-orb login-backdrop-orb-right' />
+
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -83,42 +98,68 @@ function LoginModel({ onClose, setUser }) {
           transition={{ duration: 0.2, ease: "easeOut" }}
           onClick={(e) => e.stopPropagation()}
           className='login-card'
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="login-title"
+          aria-describedby="login-description"
         >
-          {/* Ambient glow */}
-          <div className='absolute -top-16 left-1/2 -translate-x-1/2 w-56 h-56 rounded-full bg-[#606BEB]/30 blur-[80px] pointer-events-none' />
+          <div className='login-card-grid' aria-hidden="true" />
+          <div className='login-card-glow' aria-hidden="true" />
 
-          <motion.button
+          <button
+            ref={closeButtonRef}
+            type="button"
             onClick={onClose}
-            whileHover={{ scale: 1.1, rotate: 90 }}
-            whileTap={{ scale: 0.9 }}
             className='login-close-btn'
+            aria-label="Close sign-in dialog"
           >
             <FaTimes size={14} />
-          </motion.button>
+          </button>
 
-          <div className='relative z-10 flex flex-col items-center'>
-            <BrandMark className="h-12 w-12" />
+          <motion.div
+            className='relative z-10'
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.07, delayChildren: 0.08 } },
+            }}
+          >
+            <motion.div variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } }} className='login-brand-row'>
+              <BrandMark className="h-9 w-9 rounded-xl" />
+              <span className='login-brand-name'>GLANGEN</span>
+            </motion.div>
 
-            <h2 className='login-title'>Welcome to GLANGEN</h2>
-            <p className='login-subtitle'>Continue your AI interview journey</p>
+            <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} className='login-intro'>
+              <span className='login-eyebrow'><span className='login-status-dot' />Interview workspace</span>
+              <h2 id="login-title" className='login-title'>Ready for your next round?</h2>
+              <p id="login-description" className='login-subtitle'>Sign in to practice with your AI interview team and keep your progress in one place.</p>
+            </motion.div>
 
-            <div className="mt-8 w-full">
+            <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} className="login-action-area">
               <motion.button
+                type="button"
                 onClick={handleGoogleAuth}
                 disabled={loading}
-                whileHover={{ scale: loading ? 1 : 1.02 }}
-                whileTap={{ scale: loading ? 1 : 0.97 }}
+                whileHover={{ y: loading ? 0 : -2 }}
+                whileTap={{ scale: loading ? 1 : 0.98 }}
                 className='login-google-btn'
+                aria-busy={loading}
               >
                 {loading ? (
-                  <span className='login-spinner' />
+                  <>
+                    <span className='login-spinner' />
+                    <span>Opening Google…</span>
+                  </>
                 ) : (
                   <>
                     <FcGoogle size={18} />
                     <span>Continue with Google</span>
+                    <FaArrowRight className="login-button-arrow" size={12} aria-hidden="true" />
                   </>
                 )}
               </motion.button>
+              <p className='login-assurance'>A secure Google window will open to complete sign-in.</p>
 
               <AnimatePresence>
                 {error && (
@@ -127,17 +168,19 @@ function LoginModel({ onClose, setUser }) {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className='login-error'
+                    role="alert"
                   >
                     {error}
                   </motion.p>
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
 
-            <div className='login-footer'>
-              <p className='login-footer-text'>Secured authentication powered by Firebase</p>
-            </div>
-          </div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } }} className='login-footer'>
+              <FaShieldAlt aria-hidden="true" />
+              <p className='login-footer-text'>Your session and interview history stay protected.</p>
+            </motion.div>
+          </motion.div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
