@@ -4,7 +4,10 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 300,
-      "includeFiles": "../../shared/**"
+      "includeFiles": [
+        "../../shared/**",
+        "node_modules/pdfjs-dist/**"
+      ]
     }
   },
   "rewrites": [
