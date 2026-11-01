@@ -65,7 +65,9 @@ export const login = async (req, res) => {
     res.cookie("session", sessionId, {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        // Requests now use the frontend's same-origin /api rewrite. Lax avoids
+        // third-party-cookie blocking on Safari, Android, and privacy browsers.
+        sameSite: "lax",
         maxAge:1000 * 60 * 60 * 24 * 7,
       }
     );
@@ -94,7 +96,7 @@ export const logout = async (req, res) => {
     res.clearCookie("session", {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        sameSite: "lax",
     });
 
     return res.json({
